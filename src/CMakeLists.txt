@@ -50,6 +50,8 @@ target_sources(
         include/ict/core/trait/not_copyable.hpp
         include/ict/core/sync/mutex.hpp
         include/ict/core/sync/mutex.void.hpp
+        include/ict/core/sync/rwlock.hpp
+        include/ict/core/sync/condvar.hpp
 )
 
 if(WIN32)
