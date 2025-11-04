@@ -421,19 +421,9 @@ class [[nodiscard]] expected<T, E> {  // NOLINT
 
 }  // namespace ict::core
 
-template <ict::core::is_void T, typename E>
-struct std::formatter<ict::core::expected<T, E>, char> : std::formatter<std::string, char> {
-    std::format_context::iterator format(const ict::core::expected<T, E>& exp, std::format_context& ctx) const {
-        if (exp.has_value()) {
-            return std::format_to(ctx.out(), "Ok(())");
-        } else {
-            return std::format_to(ctx.out(), "Err({})", exp.error());
-        }
-    }
-};
-template <ict::core::is_void T, typename E>
-struct std::formatter<ict::core::expected<T, E>, wchar_t> : std::formatter<std::string, wchar_t> {
-    std::wformat_context::iterator format(const ict::core::expected<T, E>& exp, std::wformat_context& ctx) const {
+template <ict::core::is_void T, typename E, typename CharT>
+struct std::formatter<ict::core::expected<T, E>, CharT> : std::formatter<std::basic_string<CharT>, CharT> {
+    auto format(const ict::core::expected<T, E>& exp, auto& ctx) const {
         if (exp.has_value()) {
             return std::format_to(ctx.out(), "Ok(())");
         } else {

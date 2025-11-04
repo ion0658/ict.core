@@ -136,15 +136,9 @@ constexpr void swap(unexpected<E>& lhs, unexpected<E>& rhs) noexcept(noexcept(lh
 
 }  // namespace ict::core
 
-template <typename T>
-struct std::formatter<ict::core::unexpected<T>, char> : std::formatter<std::string, char> {
-    std::format_context::iterator format(const ict::core::unexpected<T>& err, std::format_context& ctx) const {
-        return std::format_to(ctx.out(), "{}", err.error());
-    }
-};
-template <typename T>
-struct std::formatter<ict::core::unexpected<T>, wchar_t> : std::formatter<std::wstring, wchar_t> {
-    std::wformat_context::iterator format(const ict::core::unexpected<T>& err, std::wformat_context& ctx) const {
+template <typename T, typename CharT>
+struct std::formatter<ict::core::unexpected<T>, CharT> : std::formatter<std::basic_string<CharT>, CharT> {
+    auto format(const ict::core::unexpected<T>& err, auto& ctx) const {
         return std::format_to(ctx.out(), "{}", err.error());
     }
 };

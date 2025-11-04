@@ -2,66 +2,49 @@
 #include <format>
 #include <optional>
 #include <system_error>
-#include <thread>
 #include <variant>
 #include <version>
 
-#include "ict.core_export.h"
+#ifndef __cpp_lib_formatters
+#include <sstream>
+#include <thread>
+#endif
 
-template <>
-struct ICT_CORE_EXPORT std::formatter<std::monostate, char> : std::formatter<std::string, char> {
-    std::format_context::iterator format(const std::monostate& val, std::format_context& ctx) const;
-};
-
-template <>
-struct ICT_CORE_EXPORT std::formatter<std::monostate, wchar_t> : std::formatter<std::wstring, wchar_t> {
-    std::wformat_context::iterator format(const std::monostate& val, std::wformat_context& ctx) const;
+template <typename CharT>
+struct std::formatter<std::monostate, CharT> : std::formatter<std::basic_string<CharT>, CharT> {
+    auto format([[maybe_unused]] const std::monostate& val, auto& ctx) const { return std::format_to(ctx.out(), "()"); }
 };
 
-template <>
-struct ICT_CORE_EXPORT std::formatter<std::filesystem::path, char> : std::formatter<std::string, char> {
-    std::format_context::iterator format(const std::filesystem::path& path, std::format_context& ctx) const;
-};
-template <>
-struct ICT_CORE_EXPORT std::formatter<std::filesystem::path, wchar_t> : std::formatter<std::wstring, wchar_t> {
-    std::wformat_context::iterator format(const std::filesystem::path& path, std::wformat_context& ctx) const;
+template <typename CharT>
+struct std::formatter<std::filesystem::path, CharT> : std::formatter<std::basic_string<CharT>, CharT> {
+    auto format(const std::filesystem::path& val, auto& ctx) const {
+        return std::format_to(ctx.out(), "{}", val.string());
+    }
 };
 
-template <>
-struct ICT_CORE_EXPORT std::formatter<std::error_code, char> : std::formatter<std::string, char> {
-    std::format_context::iterator format(const std::error_code& err, std::format_context& ctx) const;
-};
-template <>
-struct ICT_CORE_EXPORT std::formatter<std::error_code, wchar_t> : std::formatter<std::wstring, wchar_t> {
-    std::wformat_context::iterator format(const std::error_code& err, std::wformat_context& ctx) const;
+template <typename CharT>
+struct std::formatter<std::error_code, CharT> : std::formatter<std::basic_string<CharT>, CharT> {
+    auto format(const std::error_code& val, auto& ctx) const {
+        return std::format_to(ctx.out(), "{} (code {})", val.message(), val.value());
+    }
 };
 
 #ifndef __cpp_lib_formatters
-template <>
-struct ICT_CORE_EXPORT std::formatter<std::thread::id, char> : std::formatter<std::string, char> {
-    std::format_context::iterator format(const std::thread::id& tid, std::format_context& ctx) const;
-};
-template <>
-struct ICT_CORE_EXPORT std::formatter<std::thread::id, wchar_t> : std::formatter<std::wstring, wchar_t> {
-    std::wformat_context::iterator format(const std::thread::id& tid, std::wformat_context& ctx) const;
+template <typename CharT>
+struct std::formatter<std::thread::id, CharT> : std::formatter<std::basic_string<CharT>, CharT> {
+    auto format(const std::thread::id& val, auto& ctx) const {
+        auto stream = std::stringstream{};
+        stream << val;
+        return std::format_to(ctx.out(), "{:s}", stream.str());
+    }
 };
 #endif
 
-template <typename T>
-struct std::formatter<std::optional<T>, char> : std::formatter<std::string, char> {
-    std::format_context::iterator format(const std::optional<T>& opt, std::format_context& ctx) const {
-        if (opt.has_value()) {
-            return std::format_to(ctx.out(), "Some({})", opt.value());
-        } else {
-            return std::format_to(ctx.out(), "None");
-        }
-    }
-};
-template <typename T>
-struct std::formatter<std::optional<T>, wchar_t> : std::formatter<std::wstring, wchar_t> {
-    std::wformat_context::iterator format(const std::optional<T>& opt, std::wformat_context& ctx) const {
-        if (opt.has_value()) {
-            return std::format_to(ctx.out(), "Some({})", opt.value());
+template <typename T, typename CharT>
+struct std::formatter<std::optional<T>, CharT> : std::formatter<std::basic_string<CharT>, CharT> {
+    auto format(const std::optional<T>& val, auto& ctx) const {
+        if (val.has_value()) {
+            return std::format_to(ctx.out(), "Some({})", val.value());
         } else {
             return std::format_to(ctx.out(), "None");
         }

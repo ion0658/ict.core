@@ -22,7 +22,8 @@ target_sources(
 target_sources(
     ict.core
     PRIVATE
-        src/formatters.cpp
+        src/lib.cpp
+        # src/formatters.cpp
         src/win_error.cpp
         src/net/ip_addr.cpp
         src/net/ip_addr.v4.cpp
