@@ -80,8 +80,8 @@ struct ICT_CORE_EXPORT IpAddrV6 : public ict::core::IDisplay {
     std::array<std::uint8_t, 16> _bytes;
 };
 
-struct ICT_CORE_EXPORT ip_addrv6_t {};              // NOLINT
-ICT_CORE_EXPORT constexpr ip_addrv6_t ip_addrv6{};  // NOLINT
+struct ICT_CORE_EXPORT ip_addrv6_t {};                     // NOLINT
+ICT_CORE_EXPORT inline constexpr ip_addrv6_t ip_addrv6{};  // NOLINT
 
 }  // namespace ict::core::net
 

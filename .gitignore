@@ -1,4 +1,6 @@
+## clangd cache
 .cache/
 
+## default build directory
 build/
 

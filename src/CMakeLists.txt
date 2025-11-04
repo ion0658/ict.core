@@ -2,15 +2,6 @@ add_library(ict.core)
 
 generate_export_header(ict.core)
 
-target_sources(
-    ict.core
-    PRIVATE
-        src/formatters.cpp
-        src/net/ip_addr.cpp
-        src/net/ip_addr.v4.cpp
-        src/net/ip_addr.v6.cpp
-)
-
 target_include_directories(
     ict.core
     PUBLIC
@@ -19,10 +10,42 @@ target_include_directories(
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-set_target_properties(
+target_sources(
     ict.core
-    PROPERTIES
-    PUBLIC_HEADER "${CMAKE_CURRENT_BINARY_DIR}/ict.core_export.h;include/expected.hpp;"
+    PUBLIC
+    FILE_SET HEADERS
+    BASE_DIRS "${CMAKE_CURRENT_BINARY_DIR}"
+    FILES
+        "${CMAKE_CURRENT_BINARY_DIR}/ict.core_export.h"
+)
+
+target_sources(
+    ict.core
+    PRIVATE
+        src/formatters.cpp
+        src/win_error.cpp
+        src/net/ip_addr.cpp
+        src/net/ip_addr.v4.cpp
+        src/net/ip_addr.v6.cpp
+)
+
+target_sources(
+    ict.core
+    PUBLIC
+    FILE_SET HEADERS
+    BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/include"
+    FILES
+        include/ict/core/bad_expected_access.hpp
+        include/ict/core/concepts.hpp
+        include/ict/core/expected.hpp
+        include/ict/core/expected.void.hpp
+        include/ict/core/formatters.hpp
+        include/ict/core/unexpected.hpp
+        include/ict/core/win_error.hpp
+        include/ict/core/net/ip_addr.hpp
+        include/ict/core/net/ip_addr.v4.hpp
+        include/ict/core/net/ip_addr.v6.hpp
+        include/ict/core/trait/display.hpp
 )
 
 if(WIN32)
@@ -31,12 +54,17 @@ if(WIN32)
         PRIVATE
             WIN32_LEAN_AND_MEAN
     )
+    target_link_libraries(
+        ict.core
+        PRIVATE
+            ws2_32
+    )
 endif()
 
 install(
     TARGETS ict.core
     EXPORT ict.core
-    PUBLIC_HEADER DESTINATION include/ict/core
+    FILE_SET HEADERS DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     ARCHIVE DESTINATION lib/$<CONFIG>
     LIBRARY DESTINATION lib/$<CONFIG>
     RUNTIME DESTINATION bin/$<CONFIG>

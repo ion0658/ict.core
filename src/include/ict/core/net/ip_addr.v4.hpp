@@ -51,8 +51,8 @@ struct ICT_CORE_EXPORT IpAddrV4 : public ict::core::IDisplay {
     std::array<std::uint8_t, 4> _bytes;
 };
 
-struct ICT_CORE_EXPORT ip_addrv4_t {};              // NOLINT
-ICT_CORE_EXPORT constexpr ip_addrv4_t ip_addrv4{};  // NOLINT
+struct ICT_CORE_EXPORT ip_addrv4_t {};                     // NOLINT
+ICT_CORE_EXPORT inline constexpr ip_addrv4_t ip_addrv4{};  // NOLINT
 
 }  // namespace ict::core::net
 
