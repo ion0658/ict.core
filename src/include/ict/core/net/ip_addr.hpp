@@ -1,11 +1,11 @@
 #pragma once
 
-#include <concepts>
-#include <initializer_list>
-#include <utility>
 #ifndef ICT_CORE_NET_IP_ADDR_HPP
 #define ICT_CORE_NET_IP_ADDR_HPP
 
+#include <concepts>
+#include <initializer_list>
+#include <utility>
 #include <variant>
 
 #include "ict/core/net/ip_addr.v4.hpp"

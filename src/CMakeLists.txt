@@ -22,12 +22,12 @@ target_sources(
 target_sources(
     ict.core
     PRIVATE
-        src/lib.cpp
         src/formatters.cpp
         src/win_error.cpp
         src/net/ip_addr.cpp
         src/net/ip_addr.v4.cpp
         src/net/ip_addr.v6.cpp
+        src/net/sockaddr.cpp
 )
 
 target_sources(
@@ -46,12 +46,16 @@ target_sources(
         include/ict/core/net/ip_addr.hpp
         include/ict/core/net/ip_addr.v4.hpp
         include/ict/core/net/ip_addr.v6.hpp
+        include/ict/core/net/sockaddr.hpp
         include/ict/core/trait/display.hpp
         include/ict/core/trait/not_copyable.hpp
         include/ict/core/sync/mutex.hpp
         include/ict/core/sync/mutex.void.hpp
         include/ict/core/sync/rwlock.hpp
         include/ict/core/sync/condvar.hpp
+        include/ict/core/io/read.hpp
+        include/ict/core/io/seek.hpp
+        include/ict/core/io/write.hpp
 )
 
 if(WIN32)
