@@ -14,6 +14,7 @@
 #include <utility>
 #include <variant>
 
+#include "ict/core/concepts.hpp"
 #include "ict/core/expected.hpp"
 
 namespace ict::core {

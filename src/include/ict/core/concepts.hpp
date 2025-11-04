@@ -1,10 +1,10 @@
 #pragma once
 
-#include <type_traits>
 #ifndef ICT_CORE_CONCEPTS_HPP
 #define ICT_CORE_CONCEPTS_HPP
 
 #include <concepts>
+#include <type_traits>
 
 namespace ict::core {
 
@@ -13,6 +13,9 @@ concept derived_from_and_not_same = std::derived_from<Derived, Base> && not std:
 
 template <typename T, typename U>
 concept is_weak_same_as = std::same_as<typename std::remove_cvref<T>::type, typename std::remove_cvref<U>::type>;
+
+template <class T>
+concept is_void = std::is_void_v<T>;
 
 }  // namespace ict::core
 

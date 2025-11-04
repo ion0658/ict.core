@@ -34,9 +34,6 @@ template <class T, class E>
 class [[nodiscard]] expected;
 
 template <class T>
-concept is_void = std::is_void_v<T>;
-
-template <class T>
 concept is_qualified_expected =
     !std::is_reference_v<T> && !std::is_function_v<T> && !std::same_as<std::in_place_t, T> &&
     !std::same_as<unexpect_t, T> && !is_unexpected_v<T>;
