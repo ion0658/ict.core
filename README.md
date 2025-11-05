@@ -1,4 +1,4 @@
-# ion_cpp_tools
+# ict.core
 
 
 
@@ -15,14 +15,14 @@ Already a pro? Just edit this README.md and make it your own. Want to make it ea
 
 ```
 cd existing_repo
-git remote add origin https://gitlab.com/ionoh/ion_cpp_tools.git
+git remote add origin https://gitlab.com/ionoh/ict.core.git
 git branch -M main
 git push -uf origin main
 ```
 
 ## Integrate with your tools
 
-- [ ] [Set up project integrations](https://gitlab.com/ionoh/ion_cpp_tools/-/settings/integrations)
+- [ ] [Set up project integrations](https://gitlab.com/ionoh/ict.core/-/settings/integrations)
 
 ## Collaborate with your team
 
