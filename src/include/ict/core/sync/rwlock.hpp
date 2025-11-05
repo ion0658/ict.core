@@ -12,6 +12,12 @@
 
 namespace ict::core::sync {
 
+///
+/// @brief ReadLockGuard - A guard that provides read-only access to a data of type T while holding a shared lock.
+/// @details The ReadLockGuard holds a shared lock on a std::shared_mutex, allowing multiple concurrent readers.
+///
+/// @tparam T Data type to be accessed through the ReadLockGuard.
+///
 template <typename T>
 struct ReadLockGuard : private ict::core::INotCopyable {
     using const_reference = const T&;
@@ -25,10 +31,31 @@ struct ReadLockGuard : private ict::core::INotCopyable {
     ReadLockGuard(ReadLockGuard&&) = default;
     ReadLockGuard& operator=(ReadLockGuard&&) = default;
 
+    ///
+    /// @brief returns a const reference to the protected data.
+    ///
+    /// @return ref T A const reference to the protected data.
+    ///
     constexpr const_reference as_ref() const { return _ref; }
+
+    ///
+    /// @brief returns a const reference to the protected data.
+    ///
+    /// @return ref T A const reference to the protected data.
+    ///
     constexpr const_reference operator*() const { return _ref; }
 
+    ///
+    /// @brief gets a reference to the underlying shared lock.
+    ///
+    /// @return std::shared_lock<std::shared_mutex>& A reference to the underlying shared lock.
+    ///
     constexpr std::shared_lock<std::shared_mutex>& ref_lock() { return _lock; }
+    ///
+    /// @brief gets a const reference to the underlying shared lock.
+    ///
+    /// @return const std::shared_lock<std::shared_mutex>& A const reference to the underlying shared lock.
+    ///
     constexpr const std::shared_lock<std::shared_mutex>& ref_lock() const { return _lock; }
 
    private:
@@ -36,6 +63,12 @@ struct ReadLockGuard : private ict::core::INotCopyable {
     std::shared_lock<std::shared_mutex> _lock;
 };
 
+///
+/// @brief WriteLockGuard - A guard that provides mutable access to a data of type T while holding an exclusive lock.
+/// @details The WriteLockGuard holds an exclusive lock on a std::shared_mutex, allowing only one writer at a time.
+///
+/// @tparam T Data type to be accessed through the WriteLockGuard.
+///
 template <typename T>
 struct WriteLockGuard : private ict::core::INotCopyable {
     using reference = T&;
@@ -48,10 +81,30 @@ struct WriteLockGuard : private ict::core::INotCopyable {
     WriteLockGuard(WriteLockGuard&&) = default;
     WriteLockGuard& operator=(WriteLockGuard&&) = default;
 
+    ///
+    /// @brief gets a reference to the protected data.
+    ///
+    /// @return ref T A reference to the protected data.
+    ///
     constexpr reference as_ref() { return _ref; }
+    ///
+    /// @brief gets a reference to the protected data.
+    ///
+    /// @return ref T A reference to the protected data.
+    ///
     constexpr reference operator*() { return _ref; }
 
+    ///
+    /// @brief gets a reference to the underlying unique lock.
+    ///
+    /// @return std::unique_lock<std::shared_mutex>& A reference to the underlying unique lock.
+    ///
     constexpr std::unique_lock<std::shared_mutex>& ref_lock() { return _lock; }
+    ///
+    /// @brief gets a const reference to the underlying unique lock.
+    ///
+    /// @return const std::unique_lock<std::shared_mutex>& A const reference to the underlying unique lock.
+    ///
     constexpr const std::unique_lock<std::shared_mutex>& ref_lock() const { return _lock; }
 
    private:
@@ -59,6 +112,12 @@ struct WriteLockGuard : private ict::core::INotCopyable {
     std::unique_lock<std::shared_mutex> _lock;
 };
 
+///
+/// @brief RWLock - A read-write lock that provides synchronized access to a data of type T.
+/// @details The RWLock allows multiple concurrent readers or a single writer at any given time.
+///
+/// @tparam T Data type to be protected by the RWLock.
+///
 template <typename T>
 struct RWLock : private ict::core::INotCopyable {
     RWLock() = default;
@@ -68,6 +127,11 @@ struct RWLock : private ict::core::INotCopyable {
     RWLock(RWLock&&) = default;
     RWLock& operator=(RWLock&&) = default;
 
+    ///
+    /// @brief get a read lock guard for the protected data.
+    ///
+    /// @return ReadLockGuard<T> A read lock guard that provides read-only access to the protected data.
+    ///
     constexpr ReadLockGuard<T> read() { return ReadLockGuard<T>(_value, std::shared_lock<std::shared_mutex>(_mutex)); }
     ict::core::expected<ReadLockGuard<T>, std::error_code> try_read() {
         std::shared_lock<std::shared_mutex> lock(_mutex, std::try_to_lock);
@@ -77,6 +141,11 @@ struct RWLock : private ict::core::INotCopyable {
         return ReadLockGuard<T>(_value, std::move(lock));
     }
 
+    ///
+    /// @brief get a write lock guard for the protected data.
+    ///
+    /// @return WriteLockGuard<T> A write lock guard that provides mutable access to the protected data.
+    ///
     constexpr WriteLockGuard<T> write() {
         return WriteLockGuard<T>(_value, std::unique_lock<std::shared_mutex>(_mutex));
     }

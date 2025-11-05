@@ -17,29 +17,84 @@
 
 namespace ict::core::net {
 
+///
+/// @brief IpAddrV4 - class representing an IPv4 address
+///
+///
 struct ICT_CORE_EXPORT IpAddrV4 : public ict::core::IDisplay {
+    ///
+    /// @brief ipv4 default constructor
+    ///
+    ///
     constexpr IpAddrV4() noexcept : _bytes{0, 0, 0, 0} {}
+    ///
+    /// @brief ipv4 constructor from 4 bytes
+    ///
+    /// @param[in] byte_0 byte 0
+    /// @param[in] byte_1 byte 1
+    /// @param[in] byte_2 byte 2
+    /// @param[in] byte_3 byte 4
+    ///
     constexpr IpAddrV4(std::uint8_t byte_0, std::uint8_t byte_1, std::uint8_t byte_2, std::uint8_t byte_3) noexcept
         : _bytes{byte_0, byte_1, byte_2, byte_3} {}
 
-    constexpr IpAddrV4(std::span<uint8_t, 4> bytes) noexcept : _bytes{bytes[0], bytes[1], bytes[2], bytes[3]} {}
+    ///
+    /// @brief ivpv4 constructor from byte span
+    ///
+    /// @param[in] bytes byte span
+    ///
+    constexpr IpAddrV4(const std::span<uint8_t, 4> bytes) noexcept : _bytes{bytes[0], bytes[1], bytes[2], bytes[3]} {}
 
     constexpr IpAddrV4(const IpAddrV4&) = default;
     constexpr IpAddrV4& operator=(const IpAddrV4&) = default;
     constexpr IpAddrV4(IpAddrV4&&) = default;
     constexpr IpAddrV4& operator=(IpAddrV4&&) = default;
 
+    ///
+    /// @brief local loopback address
+    ///
+    /// @return ipv4 loopback address(127.0.0.1)
+    ///
     constexpr static IpAddrV4 loopback() noexcept { return IpAddrV4(127, 0, 0, 1); }
+    ///
+    /// @brief unspecified address
+    ///
+    /// @return ipv4 unspecified address(0.0.0.0)
+    ///
     constexpr static IpAddrV4 unspecified() noexcept { return IpAddrV4(0, 0, 0, 0); }
+    ///
+    /// @brief broadcast address
+    ///
+    /// @return ipv4 broadcast address(255.255.255.255)
+    ///
     constexpr static IpAddrV4 broadcast() noexcept { return IpAddrV4(255, 255, 255, 255); }
 
+    ///
+    /// @brief try to parse ipv4 address from string
+    ///
+    /// @param[in] str ipaddress string
+    ///
+    /// @return value: ipv4 address if parsing successful, invalid_argument error code otherwise
+    ///
     static ict::core::expected<IpAddrV4, std::error_code> from(const std::string_view str);
 
     constexpr bool operator==(const IpAddrV4& other) const noexcept { return std::ranges::equal(_bytes, other._bytes); }
+    ///
+    /// @brief bit mask OR operator
+    ///
+    /// @param[in] rhs other ipv4 address
+    /// @return bitwise ORed ipv4 address
+    ///
     constexpr IpAddrV4 operator|(const IpAddrV4& rhs) noexcept {
         return IpAddrV4(_bytes[0] | rhs._bytes[0], _bytes[1] | rhs._bytes[1], _bytes[2] | rhs._bytes[2],
                         _bytes[3] | rhs._bytes[3]);
     }
+    ///
+    /// @brief bit mask AND operator
+    ///
+    /// @param[in] rhs other ipv4 address
+    /// @return bitwise ANDed ipv4 address
+    ///
     constexpr IpAddrV4 operator&(const IpAddrV4& rhs) noexcept {
         return IpAddrV4(_bytes[0] & rhs._bytes[0], _bytes[1] & rhs._bytes[1], _bytes[2] & rhs._bytes[2],
                         _bytes[3] & rhs._bytes[3]);

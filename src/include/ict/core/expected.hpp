@@ -33,23 +33,41 @@ namespace ict::core {
 template <class T, class E>
 class [[nodiscard]] expected;
 
+///
+/// @brief Trait to check whether T is unexpected<U> for some U
+///
 template <class T>
 concept is_qualified_expected =
     !std::is_reference_v<T> && !std::is_function_v<T> && !std::same_as<std::in_place_t, T> &&
     !std::same_as<unexpect_t, T> && !is_unexpected_v<T>;
 
+///
+/// @brief Trait to check whether T is a valid value type
+///
 template <class T>
 concept expected_value_type = is_qualified_expected<T> && std::destructible<T>;
+///
+/// @brief Trait to check whether E is a valid error type
+///
 template <class E>
 concept expected_error_type = is_qualified_expected<E> && unexpected_error_type<E> && std::destructible<E>;
 
+///
+/// @brief Concept to check whether T can be constructed or converted from W
+///
 template <class T, class W>
 concept convert_from = std::constructible_from<T, W> || std::convertible_to<W, T>;
 
+///
+/// @brief Concept to check whether T can be constructed or converted from W with any cvref qualifier
+///
 template <class T, class W>
 concept convert_from_any_cvref =
     convert_from<T, W&> || convert_from<T, W> || convert_from<T, const W&> || convert_from<T, const W>;
 
+///
+/// @brief Concept to check whether F can be invoked with Args and return R
+///
 template <class R, class F, class... Args>
 concept invocable_with_args = std::is_invocable_r_v<R, F, Args...> || std::is_invocable_r_v<R, F, const Args...>;
 
@@ -57,9 +75,19 @@ template <typename T, typename E>
 struct is_expected : std::false_type {};  // NOLINT
 template <typename T, typename E>
 struct is_expected<expected<T, E>, E> : std::true_type {};
+
+///
+/// @brief Variable template to check whether T is expected<U, E> for some U
+///
 template <typename T, typename E>
 constexpr bool is_expected_v = is_expected<std::remove_cvref_t<T>, E>::value;  // NOLINT
 
+///
+/// @brief expected - either contains a value of type T or an error of type E
+///
+/// @tparam expected_value_type value type
+/// @tparam expected_error_type error type
+///
 template <expected_value_type T, expected_error_type E>
 class [[nodiscard]] expected<T, E> {  // NOLINT
    private:

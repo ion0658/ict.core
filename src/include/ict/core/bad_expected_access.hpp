@@ -21,6 +21,11 @@ using bad_expected_access = std::bad_expected_access<E>;
 
 namespace ict::core {
 
+///
+/// @brief base class for exceptions thrown by `expected` when accessing the value
+///
+/// @tparam E Error type
+///
 template <typename E>
 class bad_expected_access : public std::exception {  // NOLINT
    private:

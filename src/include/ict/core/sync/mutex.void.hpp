@@ -13,6 +13,9 @@
 
 namespace ict::core::sync {
 
+///
+/// @brief MutexGuard specialization for void type.
+///
 template <typename MutexT>
 struct MutexGuard<void, MutexT> : private ict::core::INotCopyable {
     MutexGuard() = delete;
@@ -30,6 +33,9 @@ struct MutexGuard<void, MutexT> : private ict::core::INotCopyable {
     std::unique_lock<MutexT> _lock;
 };
 
+///
+/// @brief Mutex specialization for void type.
+///
 template <typename MutexT>
 struct Mutex<void, MutexT> : private ict::core::INotCopyable {
     Mutex() = default;
