@@ -495,14 +495,15 @@ class [[nodiscard]] expected<T, E> {  // NOLINT
     }
 
     template <class T2, class E2>
+        requires(!std::is_void_v<T2>)
+    friend constexpr bool operator==(const expected& lhs, const expected<T2, E2>& rhs)
         requires requires(expected<T, E> lhs, expected<T2, E2> rhs) {
-            !std::is_void_v<T2>;
             lhs.value() == rhs.value();
             std::is_convertible_v<bool, decltype(lhs.value() == rhs.value())>;
             lhs.error() == rhs.error();
             std::is_convertible_v<bool, decltype(lhs.error() == rhs.error())>;
         }
-    friend constexpr bool operator==(const expected& lhs, const expected<T2, E2>& rhs) {
+    {
         if (lhs.has_value() != rhs.has_value()) {
             return false;
         }
@@ -514,81 +515,97 @@ class [[nodiscard]] expected<T, E> {  // NOLINT
     }
 
     template <class T2>
+        requires(!std::same_as<expected<T, E>, T2>)
+    friend constexpr bool operator==(const expected& exp, const T2& val)
         requires requires(expected<T, E> exp, T2 val) {
             exp.value() == val;
             std::is_convertible_v<bool, decltype(exp.value() == val)>;
         }
-    friend constexpr bool operator==(const expected& exp, const T2& val) {
+    {
         return exp.has_value() && (exp.value() == val);
     }
+
     template <class T2>
+        requires(!std::same_as<expected<T, E>, T2>)
+    friend constexpr bool operator==(const T2& val, const expected& exp)
         requires requires(expected<T, E> exp, T2 val) {
             exp.value() == val;
             std::is_convertible_v<bool, decltype(exp.value() == val)>;
         }
-    friend constexpr bool operator==(const T2& val, const expected& exp) {
+    {
         return exp == val;
     }
 
     template <class E2>
+    friend constexpr bool operator==(const expected& exp, const unexpected<E2>& err)
         requires requires(expected<T, E> exp, unexpected<E2> err) {
             exp.error() == err.error();
             std::is_convertible_v<bool, decltype(exp.error() == err.error())>;
         }
-    friend constexpr bool operator==(const expected& exp, const unexpected<E2>& err) {
+    {
         return !exp.has_value() && (exp.error() == err.error());
     }
+
     template <class E2>
+    friend constexpr bool operator==(const unexpected<E2>& err, const expected& exp)
         requires requires(expected<T, E> exp, unexpected<E2> err) {
             exp.error() == err.error();
             std::is_convertible_v<bool, decltype(exp.error() == err.error())>;
         }
-    friend constexpr bool operator==(const unexpected<E2>& err, const expected& exp) {
+    {
         return exp == err;
     }
+
     template <class T2, class E2>
+        requires(!std::is_void_v<T2>)
+    friend constexpr bool operator!=(const expected& lhs, const expected<T2, E2>& rhs)
         requires requires(expected<T, E> lhs, expected<T2, E2> rhs) {
-            !std::is_void_v<T2>;
             lhs.value() == rhs.value();
             std::is_convertible_v<bool, decltype(lhs.value() == rhs.value())>;
             lhs.error() == rhs.error();
             std::is_convertible_v<bool, decltype(lhs.error() == rhs.error())>;
         }
-    friend constexpr bool operator!=(const expected& lhs, const expected<T2, E2>& rhs) {
+    {
         return !(lhs == rhs);
     }
 
     template <class T2>
+        requires(!std::same_as<expected<T, E>, T2>)
+    friend constexpr bool operator!=(const expected& exp, const T2& val)
         requires requires(expected<T, E> exp, T2 val) {
             exp.value() == val;
             std::is_convertible_v<bool, decltype(exp.value() == val)>;
         }
-    friend constexpr bool operator!=(const expected& exp, const T2& val) {
+    {
         return !(exp == val);
     }
     template <class T2>
+        requires(!std::same_as<expected<T, E>, T2>)
+    friend constexpr bool operator!=(const T2& val, const expected& exp)
         requires requires(expected<T, E> exp, T2 val) {
             exp.value() == val;
             std::is_convertible_v<bool, decltype(exp.value() == val)>;
         }
-    friend constexpr bool operator!=(const T2& val, const expected& exp) {
+    {
         return !(exp == val);
     }
 
     template <class E2>
+    friend constexpr bool operator!=(const expected& exp, const unexpected<E2>& err)
         requires requires(expected<T, E> exp, unexpected<E2> err) {
             exp.error() == err.error();
             std::is_convertible_v<bool, decltype(exp.error() == err.error())>;
         }
-    friend constexpr bool operator!=(const expected& exp, const unexpected<E2>& err) {
+    {
         return !(exp == err);
     }
     template <class E2>
+    friend constexpr bool operator!=(const unexpected<E2>& err, const expected& exp)
         requires requires(expected<T, E> exp, unexpected<E2> err) {
             exp.error() == err.error();
             std::is_convertible_v<bool, decltype(exp.error() == err.error())>;
         }
-    friend constexpr bool operator!=(const unexpected<E2>& err, const expected& exp) {
+    {
         return !(exp == err);
     }
 };

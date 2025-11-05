@@ -69,11 +69,7 @@ class [[nodiscard]] unexpected<E> {  // NOLINT
     constexpr explicit unexpected(std::in_place_t, std::initializer_list<U> i_l, Args&&... args)
         : _err(i_l, std::forward<Args...>(args...)) {}
 
-    constexpr ~unexpected()
-        requires(std::is_trivially_destructible_v<E>)
-    {
-        _err.~E();
-    }
+    constexpr ~unexpected() = default;
 
     constexpr unexpected& operator=(const unexpected&)
         requires(std::copyable<E>)
