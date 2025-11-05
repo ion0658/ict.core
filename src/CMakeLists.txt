@@ -41,6 +41,7 @@ target_sources(
         include/ict/core/expected.hpp
         include/ict/core/expected.void.hpp
         include/ict/core/formatters.hpp
+        include/ict/core/print.hpp
         include/ict/core/unexpected.hpp
         include/ict/core/win_error.hpp
         include/ict/core/net/ip_addr.hpp

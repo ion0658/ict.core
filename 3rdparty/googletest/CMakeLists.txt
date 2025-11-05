@@ -1,4 +1,4 @@
-if(ENABLE_TESTING)
+if(BUILD_TESTING)
     FetchContent_Declare(
         googletest
         GIT_REPOSITORY https://github.com/google/googletest
