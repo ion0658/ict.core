@@ -28,6 +28,13 @@ struct IWrite {
     /// @return number of bytes written or an error
     ///
     virtual ict::core::expected<size_t, Error> write(const std::span<uint8_t> buffer) = 0;
+
+    ///
+    /// @brief flush - flushes any buffered data to the sink
+    ///
+    /// @return void or an error
+    ///
+    virtual ict::core::expected<void, Error> flush() = 0;
 };
 
 }  // namespace ict::core::io
