@@ -11,6 +11,12 @@ target_sources(
     ict.core_test
     PRIVATE
         expected.cpp
+        format.cpp
+        ip_addr.cpp
+        ip_addr.v4.cpp
+        ip_addr.v6.cpp
+        mutex.cpp
+        unexpected.cpp
 )
 
 add_test(
@@ -18,12 +24,4 @@ add_test(
     COMMAND ict.core_test
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
-
-if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL "21")
-    message(WARNING "Googletest has a bug recognized by Clang 21+. "
-     "Supressing character-conversion warning. "
-     "Consider using an older version of Clang.")
-    target_compile_options(gtest_main PRIVATE -Wno-error=character-conversion)
-    target_compile_options(gtest PRIVATE -Wno-error=character-conversion)
-endif()
 

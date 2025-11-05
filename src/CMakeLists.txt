@@ -27,7 +27,6 @@ target_sources(
         src/net/ip_addr.cpp
         src/net/ip_addr.v4.cpp
         src/net/ip_addr.v6.cpp
-        src/net/sockaddr.cpp
 )
 
 target_sources(
@@ -47,7 +46,6 @@ target_sources(
         include/ict/core/net/ip_addr.hpp
         include/ict/core/net/ip_addr.v4.hpp
         include/ict/core/net/ip_addr.v6.hpp
-        include/ict/core/net/sockaddr.hpp
         include/ict/core/trait/display.hpp
         include/ict/core/trait/not_copyable.hpp
         include/ict/core/sync/mutex.hpp

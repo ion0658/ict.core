@@ -106,6 +106,7 @@ struct ICT_CORE_EXPORT IpAddrV6 : public ict::core::IDisplay {
     static ict::core::expected<IpAddrV6, std::error_code> from(const std::string_view str);
 
     constexpr bool operator==(const IpAddrV6& other) const noexcept { return std::ranges::equal(_bytes, other._bytes); }
+    constexpr bool operator!=(const IpAddrV6& other) const noexcept { return !(*this == other); }
 
     ///
     /// @brief bit mask OR operator
@@ -136,14 +137,25 @@ struct ICT_CORE_EXPORT IpAddrV6 : public ict::core::IDisplay {
                         _bytes[15] & rhs._bytes[15]);
     }
 
+    ///
+    /// @brief bitwise NOT operator
+    ///
+    /// @return bitwise NOTed ipv6 address
+    ///
+    constexpr IpAddrV6 operator~() const noexcept {
+        return IpAddrV6(~_bytes[0], ~_bytes[1], ~_bytes[2], ~_bytes[3], ~_bytes[4], ~_bytes[5], ~_bytes[6], ~_bytes[7],
+                        ~_bytes[8], ~_bytes[9], ~_bytes[10], ~_bytes[11], ~_bytes[12], ~_bytes[13], ~_bytes[14],
+                        ~_bytes[15]);
+    }
+
     virtual std::string display() const override;
 
    private:
     std::array<std::uint8_t, 16> _bytes;
 };
 
-struct ICT_CORE_EXPORT ip_addrv6_t {};                     // NOLINT
-ICT_CORE_EXPORT inline constexpr ip_addrv6_t ip_addrv6{};  // NOLINT
+struct ICT_CORE_EXPORT ip_addrv6_t {};     // NOLINT
+inline constexpr ip_addrv6_t ip_addrv6{};  // NOLINT
 
 }  // namespace ict::core::net
 

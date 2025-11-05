@@ -27,6 +27,7 @@ namespace ict::core::sync {
 /// @tparam MutexT mutex type (default: std::mutex)
 ///
 template <typename T, typename MutexT = std::mutex>
+    requires requires(MutexT mtx) { std::unique_lock<MutexT>(mtx); }
 struct MutexGuard : private ict::core::INotCopyable {
     using reference = T&;
     using const_reference = const T&;
@@ -91,6 +92,7 @@ struct MutexGuard : private ict::core::INotCopyable {
 /// @tparam MutexT mutex type (default: std::mutex)
 ///
 template <typename T, typename MutexT = std::mutex>
+    requires requires(MutexT mtx) { std::unique_lock<MutexT>(mtx); }
 struct Mutex : private ict::core::INotCopyable {
     Mutex() = default;
     constexpr Mutex(const T& value) : _value(value) {}

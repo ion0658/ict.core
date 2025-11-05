@@ -18,13 +18,13 @@ namespace ict::core::sync {
 ///
 /// @tparam T Data type to be accessed through the ReadLockGuard.
 ///
-template <typename T>
+template <typename T, typename MutexT>
+    requires requires(MutexT mtx) { std::shared_lock<MutexT>(mtx); }
 struct ReadLockGuard : private ict::core::INotCopyable {
     using const_reference = const T&;
 
     ReadLockGuard() = delete;
-    ReadLockGuard(const_reference ref, std::shared_lock<std::shared_mutex>&& lock)
-        : _ref(ref), _lock(std::move(lock)) {}
+    ReadLockGuard(const_reference ref, std::shared_lock<MutexT>&& lock) : _ref(ref), _lock(std::move(lock)) {}
 
     virtual ~ReadLockGuard() = default;
 
@@ -50,17 +50,17 @@ struct ReadLockGuard : private ict::core::INotCopyable {
     ///
     /// @return std::shared_lock<std::shared_mutex>& A reference to the underlying shared lock.
     ///
-    constexpr std::shared_lock<std::shared_mutex>& ref_lock() { return _lock; }
+    constexpr std::shared_lock<MutexT>& ref_lock() { return _lock; }
     ///
     /// @brief gets a const reference to the underlying shared lock.
     ///
     /// @return const std::shared_lock<std::shared_mutex>& A const reference to the underlying shared lock.
     ///
-    constexpr const std::shared_lock<std::shared_mutex>& ref_lock() const { return _lock; }
+    constexpr const std::shared_lock<MutexT>& ref_lock() const { return _lock; }
 
    private:
     const_reference _ref;
-    std::shared_lock<std::shared_mutex> _lock;
+    std::shared_lock<MutexT> _lock;
 };
 
 ///
@@ -69,12 +69,13 @@ struct ReadLockGuard : private ict::core::INotCopyable {
 ///
 /// @tparam T Data type to be accessed through the WriteLockGuard.
 ///
-template <typename T>
+template <typename T, typename MutexT>
+    requires requires(MutexT mtx) { std::unique_lock<MutexT>(mtx); }
 struct WriteLockGuard : private ict::core::INotCopyable {
     using reference = T&;
 
     WriteLockGuard() = delete;
-    WriteLockGuard(reference ref, std::unique_lock<std::shared_mutex> lock) : _ref(ref), _lock(std::move(lock)) {}
+    WriteLockGuard(reference ref, std::unique_lock<MutexT> lock) : _ref(ref), _lock(std::move(lock)) {}
 
     virtual ~WriteLockGuard() = default;
 
@@ -99,17 +100,17 @@ struct WriteLockGuard : private ict::core::INotCopyable {
     ///
     /// @return std::unique_lock<std::shared_mutex>& A reference to the underlying unique lock.
     ///
-    constexpr std::unique_lock<std::shared_mutex>& ref_lock() { return _lock; }
+    constexpr std::unique_lock<MutexT>& ref_lock() { return _lock; }
     ///
     /// @brief gets a const reference to the underlying unique lock.
     ///
     /// @return const std::unique_lock<std::shared_mutex>& A const reference to the underlying unique lock.
     ///
-    constexpr const std::unique_lock<std::shared_mutex>& ref_lock() const { return _lock; }
+    constexpr const std::unique_lock<MutexT>& ref_lock() const { return _lock; }
 
    private:
     reference _ref;
-    std::unique_lock<std::shared_mutex> _lock;
+    std::unique_lock<MutexT> _lock;
 };
 
 ///
@@ -118,7 +119,11 @@ struct WriteLockGuard : private ict::core::INotCopyable {
 ///
 /// @tparam T Data type to be protected by the RWLock.
 ///
-template <typename T>
+template <typename T, typename MutexT = std::shared_mutex>
+    requires requires(MutexT mtx) {
+        std::shared_lock<MutexT>(mtx);
+        std::unique_lock<MutexT>(mtx);
+    }
 struct RWLock : private ict::core::INotCopyable {
     RWLock() = default;
     constexpr RWLock(const T& value) : _value(value) {}
@@ -132,13 +137,22 @@ struct RWLock : private ict::core::INotCopyable {
     ///
     /// @return ReadLockGuard<T> A read lock guard that provides read-only access to the protected data.
     ///
-    constexpr ReadLockGuard<T> read() { return ReadLockGuard<T>(_value, std::shared_lock<std::shared_mutex>(_mutex)); }
-    ict::core::expected<ReadLockGuard<T>, std::error_code> try_read() {
-        std::shared_lock<std::shared_mutex> lock(_mutex, std::try_to_lock);
+    constexpr ReadLockGuard<T, MutexT> read() {
+        return ReadLockGuard<T, MutexT>(_value, std::shared_lock<MutexT>(_mutex));
+    }
+
+    ///
+    /// @brief try to get a read lock guard for the protected data.
+    ///
+    /// @return ict::core::expected<ReadLockGuard<T>, std::error_code> A read lock guard that provides read-only access
+    /// to the protected data, or an error code if the lock could not be acquired.
+    ///
+    ict::core::expected<ReadLockGuard<T, MutexT>, std::error_code> try_read() {
+        std::shared_lock<MutexT> lock(_mutex, std::try_to_lock);
         if (!lock.owns_lock()) {
             return ict::core::unexpected(std::make_error_code(std::errc::resource_deadlock_would_occur));
         }
-        return ReadLockGuard<T>(_value, std::move(lock));
+        return ReadLockGuard<T, MutexT>(_value, std::move(lock));
     }
 
     ///
@@ -146,20 +160,27 @@ struct RWLock : private ict::core::INotCopyable {
     ///
     /// @return WriteLockGuard<T> A write lock guard that provides mutable access to the protected data.
     ///
-    constexpr WriteLockGuard<T> write() {
-        return WriteLockGuard<T>(_value, std::unique_lock<std::shared_mutex>(_mutex));
+    constexpr WriteLockGuard<T, MutexT> write() {
+        return WriteLockGuard<T, MutexT>(_value, std::unique_lock<MutexT>(_mutex));
     }
-    ict::core::expected<WriteLockGuard<T>, std::error_code> try_write() {
-        std::unique_lock<std::shared_mutex> lock(_mutex, std::try_to_lock);
+
+    ///
+    /// @brief try to get a write lock guard for the protected data.
+    ///
+    /// @return ict::core::expected<WriteLockGuard<T>, std::error_code> A write lock guard that provides mutable access
+    /// to the protected data, or an error code if the lock could not be acquired.
+    ///
+    ict::core::expected<WriteLockGuard<T, MutexT>, std::error_code> try_write() {
+        std::unique_lock<MutexT> lock(_mutex, std::try_to_lock);
         if (!lock.owns_lock()) {
             return ict::core::unexpected(std::make_error_code(std::errc::resource_deadlock_would_occur));
         }
-        return WriteLockGuard<T>(_value, std::move(lock));
+        return WriteLockGuard<T, MutexT>(_value, std::move(lock));
     }
 
    private:
     T _value;
-    std::shared_mutex _mutex;
+    MutexT _mutex;
 };
 
 }  // namespace ict::core::sync

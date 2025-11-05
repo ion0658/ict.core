@@ -79,6 +79,8 @@ struct ICT_CORE_EXPORT IpAddrV4 : public ict::core::IDisplay {
     static ict::core::expected<IpAddrV4, std::error_code> from(const std::string_view str);
 
     constexpr bool operator==(const IpAddrV4& other) const noexcept { return std::ranges::equal(_bytes, other._bytes); }
+    constexpr bool operator!=(const IpAddrV4& other) const noexcept { return !(*this == other); }
+
     ///
     /// @brief bit mask OR operator
     ///
@@ -100,14 +102,24 @@ struct ICT_CORE_EXPORT IpAddrV4 : public ict::core::IDisplay {
                         _bytes[3] & rhs._bytes[3]);
     }
 
+    ///
+    /// @brief bitwise NOT operator
+    ///
+    /// @return bitwise NOTed ipv4 address
+    ///
+    constexpr IpAddrV4 operator~() noexcept {
+        return IpAddrV4(static_cast<std::uint8_t>(~_bytes[0]), static_cast<std::uint8_t>(~_bytes[1]),
+                        static_cast<std::uint8_t>(~_bytes[2]), static_cast<std::uint8_t>(~_bytes[3]));
+    }
+
     virtual std::string display() const override;
 
    private:
     std::array<std::uint8_t, 4> _bytes;
 };
 
-struct ICT_CORE_EXPORT ip_addrv4_t {};                     // NOLINT
-ICT_CORE_EXPORT inline constexpr ip_addrv4_t ip_addrv4{};  // NOLINT
+struct ICT_CORE_EXPORT ip_addrv4_t {};     // NOLINT
+inline constexpr ip_addrv4_t ip_addrv4{};  // NOLINT
 
 }  // namespace ict::core::net
 
