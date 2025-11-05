@@ -2,7 +2,7 @@
 
 #include "ict/core/net/ip_addr.v6.hpp"
 
-TEST(ip_address, ipv6_construction) {
+TEST(ip_addr_v6, construction) {
     auto unspecified = ict::core::net::IpAddrV6::unspecified();
     auto loopback = ict::core::net::IpAddrV6::loopback();
     auto from_bytes = ict::core::net::IpAddrV6(0x20, 0x01, 0x0d, 0xb8, 0x85, 0xa3, 0x00, 0x00, 0x00, 0x00, 0x8a, 0x2e,
@@ -14,7 +14,7 @@ TEST(ip_address, ipv6_construction) {
     EXPECT_EQ(loopback, ict::core::net::IpAddrV6({0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}));
 }
 
-TEST(ip_address, ipv6_parse_str) {
+TEST(ip_addr_v6, parse_str) {
     auto ip2_res = ict::core::net::IpAddrV6::from("2001:0db8:85a3:0000:0000:8a2e:0370:7334");
     EXPECT_TRUE(ip2_res.has_value());
     auto ip2 = ip2_res.value();
@@ -24,13 +24,13 @@ TEST(ip_address, ipv6_parse_str) {
     EXPECT_FALSE(err_res.has_value());
 }
 
-TEST(ip_address, ipv6_to_string) {
+TEST(ip_addr_v6, to_string) {
     auto ip1 = ict::core::net::IpAddrV6(
         {0x20, 0x01, 0x0d, 0xb8, 0x85, 0xa3, 0x00, 0x00, 0x00, 0x00, 0x8a, 0x2e, 0x03, 0x70, 0x73, 0x34});
     EXPECT_EQ(std::format("{}", ip1), "2001:db8:85a3::8a2e:370:7334");
 }
 
-TEST(ip_address, ipv6_comparison) {
+TEST(ip_addr_v6, comparison) {
     auto ip1 = ict::core::net::IpAddrV6(
         {0x20, 0x01, 0x0d, 0xb8, 0x85, 0xa3, 0x00, 0x00, 0x00, 0x00, 0x8a, 0x2e, 0x03, 0x70, 0x73, 0x34});
     auto ip2 = ict::core::net::IpAddrV6(
@@ -42,7 +42,7 @@ TEST(ip_address, ipv6_comparison) {
     EXPECT_NE(ip1, ip3);
 }
 
-TEST(ip_address, ipv6_mask) {
+TEST(ip_addr_v6, mask) {
     auto ip1 = ict::core::net::IpAddrV6(
         {0x20, 0x01, 0x0d, 0xb8, 0x85, 0xa3, 0x00, 0x00, 0x00, 0x00, 0x8a, 0x2e, 0x03, 0x70, 0x73, 0x34});
     auto mask = ict::core::net::IpAddrV6(

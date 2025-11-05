@@ -2,7 +2,7 @@
 
 #include "ict/core/net/ip_addr.v4.hpp"
 
-TEST(ip_address, ipv4_construction) {
+TEST(ip_addr_v4, construction) {
     auto unspecified = ict::core::net::IpAddrV4::unspecified();
     auto loopback = ict::core::net::IpAddrV4::loopback();
     auto broadcast = ict::core::net::IpAddrV4::broadcast();
@@ -14,7 +14,7 @@ TEST(ip_address, ipv4_construction) {
     EXPECT_EQ(broadcast, ict::core::net::IpAddrV4(255, 255, 255, 255));
 }
 
-TEST(ip_address, ipv4_parse_str) {
+TEST(ip_addr_v4, parse_str) {
     auto ip2_res = ict::core::net::IpAddrV4::from("192.168.1.100");
     EXPECT_TRUE(ip2_res.has_value());
     auto ip2 = ip2_res.value();
@@ -23,12 +23,12 @@ TEST(ip_address, ipv4_parse_str) {
     EXPECT_FALSE(err_res.has_value());
 }
 
-TEST(ip_address, ipv4_to_string) {
+TEST(ip_addr_v4, to_string) {
     auto ip1 = ict::core::net::IpAddrV4(10, 0, 0, 1);
     EXPECT_EQ(std::format("{}", ip1), "10.0.0.1");
 }
 
-TEST(ip_address, ipv4_comparison) {
+TEST(ip_addr_v4, comparison) {
     auto ip1 = ict::core::net::IpAddrV4(192, 168, 1, 100);
     auto ip2 = ict::core::net::IpAddrV4(192, 168, 1, 100);
     auto ip3 = ict::core::net::IpAddrV4(10, 0, 0, 1);
@@ -37,7 +37,7 @@ TEST(ip_address, ipv4_comparison) {
     EXPECT_NE(ip1, ip3);
 }
 
-TEST(ip_address, ipv4_mask) {
+TEST(ip_addr_v4, mask) {
     auto ip1 = ict::core::net::IpAddrV4(192, 168, 1, 150);
     auto mask = ict::core::net::IpAddrV4(255, 255, 255, 0);
     auto network = ip1 & mask;
