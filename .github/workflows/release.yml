@@ -1,6 +1,7 @@
 name: release
 
 on:
+  workflow_dispatch:
   push:
     tags:
       - v*
@@ -8,12 +9,20 @@ on:
 jobs:
   build:
     name: Test
-    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: true
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        include:
+          - platform: linux/amd64
+            runner: ubuntu-slim
+            cc: gcc
+            cxx: g++
+          - platform: linux/arm64
+            runner: ubuntu-24.04-arm64
+            cc: gcc
+            cxx: g++
 
+    runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
       - uses: jdx/mise-action@v2
