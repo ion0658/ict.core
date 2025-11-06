@@ -3,7 +3,6 @@ name: Release Build and Upload
 on:
   workflow_dispatch:
   push:
-    branches: ["master"]
     tags:
       - "v*"
 
@@ -11,6 +10,11 @@ jobs:
   # 1. リリースを作成するジョブ
   create_release:
     name: Create GitHub Release
+    permissions:
+      # write permission is required to create a github release
+      contents: write
+      # リリースノートを書くためwrite用のpermissionを付与
+      pull-requests: write
     runs-on: ubuntu-slim
     outputs:
       upload_url: ${{ steps.create_release.outputs.upload_url }}
@@ -29,6 +33,11 @@ jobs:
   build:
     name: Build-for-Release-${{ matrix.os }}-${{ matrix.arch }}
     needs: [create_release]
+    permissions:
+      # write permission is required to create a github release
+      contents: write
+      # リリースノートを書くためwrite用のpermissionを付与
+      pull-requests: write
     runs-on: ${{ matrix.runner }}
     env:
       CC: ${{ matrix.cc }}
