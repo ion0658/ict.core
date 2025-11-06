@@ -1,0 +1,106 @@
+name: Release Build and Upload
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["master"]
+    tags:
+      - "v*"
+
+jobs:
+  # 1. リリースを作成するジョブ
+  create_release:
+    name: Create GitHub Release
+    runs-on: ubuntu-slim
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+    steps:
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v1 # リリース作成に便利なAction
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }} # 例: refs/tags/v1.0.0
+          name: Release ${{ github.ref_name }} # タグ名から'v'を除いた部分をリリース名にする
+          draft: false
+          prerelease: false
+
+  build:
+    name: Build-for-Release-${{ matrix.os }}-${{ matrix.arch }}
+    needs: [create_release]
+    runs-on: ${{ matrix.runner }}
+    env:
+      CC: ${{ matrix.cc }}
+      CXX: ${{ matrix.cxx }}
+      RELEASE_FILENAME: ${{ github.event.repository.name }}_v${{ github.ref_name }}_${{ matrix.os }}-${{ matrix.arch }}
+
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - os: linux
+            arch: x86_64
+            runner: ubuntu-slim
+            cc: gcc
+            cxx: g++
+
+          - os: linux
+            arch: arm64
+            runner: ubuntu-24.04-arm
+            cc: gcc
+            cxx: g++
+
+          - os: macos
+            arch: universal
+            runner: macos-latest
+            cc: clang
+            cxx: clang++
+
+          - os: windows
+            arch: x86_64
+            runner: windows-latest
+            cc: cl
+            cxx: cl
+
+          - os: windows
+            arch: arm64
+            runner: windows-11-arm
+            cc: cl
+            cxx: cl
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ilammy/msvc-dev-cmd@v1
+        if: ${{ matrix.os == 'windows' }}
+      - uses: jdx/mise-action@v2
+        with:
+          mise_toml: |
+            [tools]
+            cmake = "latest"
+            ninja = "latest"
+      - name: configure
+        if: ${{ matrix.os != 'macos' }}
+        run: cmake . -B build -G Ninja -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_PREFIX=./build/install
+      - name: configure
+        if: ${{ matrix.os == 'macos' }}
+        run: cmake . -B build -G Ninja -D CMAKE_OSX_ARCHITECTURES="arm64;x86_64" -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_PREFIX=./build/install
+      - name: build
+        run: cmake --build build -- install
+
+      - name: Archive Release
+        uses: thedoctor0/zip-release@main
+        with:
+          type: "zip"
+          filename: ${{ env.RELEASE_FILENAME }}
+          directory: build/install
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create_release.outputs.upload_url }} # create_releaseジョブの出力を利用
+          asset_path: build/install/${{ env.RELEASE_FILENAME }}
+          asset_name: build/install/${{ env.RELEASE_FILENAME }}
+
