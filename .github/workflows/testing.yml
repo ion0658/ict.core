@@ -10,19 +10,22 @@ jobs:
   test:
     name: ${{ matrix.os }}/${{ matrix.arch }}
     runs-on: ${{ matrix.runner }}
+    env:
+      CC: ${{ matrix.cc }}
+      CXX: ${{ matrix.cxx }}
     strategy:
       fail-fast: true
       matrix:
         include:
           - os: linux
-            arch: amd64
+            arch: x86_64
             runner: ubuntu-slim
             cc: gcc
             cxx: g++
 
           - os: linux
             arch: arm64
-            runner: ubuntu-24.04-arm64
+            runner: ubuntu-24.04-arm
             cc: gcc
             cxx: g++
 
@@ -33,7 +36,7 @@ jobs:
             cxx: clang++
 
           - os: windows
-            arch: amd64
+            arch: x86_64
             runner: windows-latest
             cc: cl
             cxx: cl
@@ -46,6 +49,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - uses: ilammy/msvc-dev-cmd@v1
+        if: ${{ matrix.os == 'windows' }}
       - uses: jdx/mise-action@v2
         with:
           mise_toml: |
