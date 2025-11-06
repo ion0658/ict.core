@@ -1,5 +1,6 @@
 name: test
 on:
+  workflow_dispatch:
   push:
     branches: ["master"]
   pull_request:
@@ -7,15 +8,49 @@ on:
 
 jobs:
   test:
-    name: Test
-    runs-on: ${{ matrix.os }}
+    name: ${{ matrix.os }}/${{ matrix.arch }}
+    runs-on: ${{ matrix.runner }}
+    env:
+      CC: ${{ matrix.cc }}
+      CXX: ${{ matrix.cxx }}
     strategy:
       fail-fast: true
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        include:
+          - os: linux
+            arch: amd64
+            runner: ubuntu-slim
+            cc: gcc
+            cxx: g++
+
+          - os: linux
+            arch: arm64
+            runner: ubuntu-24.04-arm
+            cc: gcc
+            cxx: g++
+
+          - os: macos
+            arch: arm64
+            runner: macos-latest
+            cc: clang
+            cxx: clang++
+
+          - os: windows
+            arch: amd64
+            runner: windows-latest
+            cc: cl
+            cxx: cl
+
+          - os: windows
+            arch: arm64
+            runner: windows-11-arm
+            cc: cl
+            cxx: cl
 
     steps:
       - uses: actions/checkout@v4
+      - uses: ilammy/msvc-dev-cmd@v1
+        if: ${{ matrix.os == 'windows' }}
       - uses: jdx/mise-action@v2
         with:
           mise_toml: |
@@ -23,7 +58,11 @@ jobs:
             cmake = "latest"
             ninja = "latest"
       - name: configure
+        if: ${{ matrix.os != 'macos' }}
         run: cmake . -B build -G Ninja -D BUILD_TESTING=ON
+      - name: configure
+        if: ${{ matrix.os == 'macos' }}
+        run: cmake . -B build -G Ninja -D BUILD_TESTING=ON -D CMAKE_OSX_ARCHITECTURES="arm64;x86_64"
       - name: build
         run: cmake --build build
       - name: testing

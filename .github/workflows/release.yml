@@ -1,0 +1,38 @@
+name: release
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - v*
+
+jobs:
+  build:
+    name: Test
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - platform: linux/amd64
+            runner: ubuntu-slim
+            cc: gcc
+            cxx: g++
+          - platform: linux/arm64
+            runner: ubuntu-24.04-arm64
+            cc: gcc
+            cxx: g++
+
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: jdx/mise-action@v2
+        with:
+          mise_toml: |
+            [tools]
+            cmake = "latest"
+            ninja = "latest"
+      - name: configure
+        run: cmake . -B build -G Ninja -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_PREFIX=./build/install
+      - name: build
+        run: cmake --build build -- install
+
