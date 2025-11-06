@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    name: ${{ matrix.os }}/${{ matrix.arch }}
+    name: release-${{ matrix.os }}-${{ matrix.arch }}
     permissions:
       contents: write
     runs-on: ${{ matrix.runner }}

@@ -8,7 +8,7 @@ on:
 
 jobs:
   test:
-    name: ${{ matrix.os }}/${{ matrix.arch }}
+    name: test-${{ matrix.os }}-${{ matrix.arch }}
     runs-on: ${{ matrix.runner }}
     env:
       CC: ${{ matrix.cc }}
