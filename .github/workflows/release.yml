@@ -20,8 +20,7 @@ jobs:
       upload_url: ${{ steps.create_release.outputs.upload_url }}
     steps:
       - name: Create Release
-        id: create_release
-        uses: softprops/action-gh-release@v1 # リリース作成に便利なAction
+        uses: softprops/action-gh-release@v2 # リリース作成に便利なAction
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -104,11 +103,9 @@ jobs:
           directory: build/install
 
       - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
+        uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ needs.create_release.outputs.upload_url }} # create_releaseジョブの出力を利用
-          asset_path: build/install/${{ env.RELEASE_FILENAME }}
-          asset_name: build/install/${{ env.RELEASE_FILENAME }}
+          files: build/install/${{ env.RELEASE_FILENAME }}
 
