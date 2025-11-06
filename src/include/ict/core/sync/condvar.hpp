@@ -20,7 +20,7 @@ namespace ict::core::sync {
 /// @details A condition variable is a synchronization primitive that
 ///
 struct CondVar : private ict::core::INotCopyable {
-    constexpr CondVar() = default;
+    CondVar() = default;
 
     virtual ~CondVar() = default;
 
