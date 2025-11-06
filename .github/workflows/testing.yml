@@ -8,7 +8,7 @@ on:
 
 jobs:
   test:
-    name: ${{ matrix.os }}/${{ matrix.arch }}
+    name: test-${{ matrix.os }}-${{ matrix.arch }}
     runs-on: ${{ matrix.runner }}
     env:
       CC: ${{ matrix.cc }}
@@ -18,7 +18,7 @@ jobs:
       matrix:
         include:
           - os: linux
-            arch: amd64
+            arch: x86_64
             runner: ubuntu-slim
             cc: gcc
             cxx: g++
@@ -36,7 +36,7 @@ jobs:
             cxx: clang++
 
           - os: windows
-            arch: amd64
+            arch: x86_64
             runner: windows-latest
             cc: cl
             cxx: cl
