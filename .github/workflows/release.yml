@@ -77,7 +77,6 @@ jobs:
             cc: cl
             cxx: cl
 
-    runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
       - uses: ilammy/msvc-dev-cmd@v1
